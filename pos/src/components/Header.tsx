@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   Command,
   User,
   ChevronDown,
@@ -108,9 +108,9 @@ const Header = () => {
         {/* Logo */}
         <div className="flex items-center">
         <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="/assets/ury/pos/ury_pos.png" 
-              alt="URY POS" 
+            <img
+              src="/assets/ury/pos/pos.png"
+              alt="URY POS"
               className="h-10 w-auto"
             />
           </Link>
@@ -189,4 +189,4 @@ const Header = () => {
   );
 };
 
-export default Header; 
+export default Header;

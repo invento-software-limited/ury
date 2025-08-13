@@ -70,7 +70,7 @@
               </button>
             </div>
 
-            
+
               <!-- Serve Button -->
 
               <!-- Card Header: Table Name and Order Number -->
@@ -98,7 +98,7 @@
                   <span class="text-sm font-medium text-[#6B7280]">Order</span>
                   <span class="text-black-500 ml-2 font-semibold"
                     >{{ this.daily_order_number ? kot.order_no : kot.invoice.slice(-4) }}
-                    
+
                   </span>
                   <span
                     class="text-black-500 ml-2 font-semibold"
@@ -174,7 +174,7 @@
                   </div>
                 </div>
               </div>
-            
+
           </div>
           <!-- You can add more item/quantity pairs here as needed -->
         </div>
@@ -220,7 +220,7 @@ let port = window.location.port;
 let protocol = window.location.protocol;
 let url = port ? `${protocol}//${host}:${port}` : `${protocol}//${host}`;
 window.globalSiteName = '';
-let socket; 
+let socket;
 
 async function fetchAndSetSiteName() {
     try {
@@ -242,12 +242,12 @@ async function initializeSocket() {
     await fetchAndSetSiteName();
     if (window.globalSiteName) {
         let site = window.globalSiteName;
-        let site_url = `${url}/${site}`;
+        let site_url = `http://nastyww.localhost:9007/`;
         socket = io(site_url,{ withCredentials: true });
         console.log("socket == >",socket)
         socket.on('connect_error', (err) => {
             console.error("Socket connection error:", err);
-        }); 
+        });
         socket.on('connect', () => {
             console.log('Socket connected:', socket.connected);
         });

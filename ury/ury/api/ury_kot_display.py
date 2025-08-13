@@ -1,6 +1,7 @@
 import json
 
 import frappe
+from frappe import _
 from ury.ury_pos.api import getBranch
 from frappe.utils import get_datetime
 
@@ -131,3 +132,21 @@ def served_kot_list():
         "daily_order_number":daily_order_number
     }
 
+@frappe.whitelist()
+def get_production_name(production):
+    """
+    Get production_name from URY Production Unit using the 'production' field
+    """
+    if not production:
+        return None
+
+    production_name = frappe.db.get_value(
+        "URY Production Unit",
+        {"production": production},
+        "production_name"
+    )
+
+    if not production_name:
+        frappe.throw(_("No Production Unit found for the given production"))
+
+    return production_name

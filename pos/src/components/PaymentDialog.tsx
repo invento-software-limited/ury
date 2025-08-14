@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Percent, Coins } from 'lucide-react';
-import { usePOSStore } from '../store/pos-store';
-import { cn, formatCurrency } from '../lib/utils';
-import { Button, Input, Dialog, DialogContent } from './ui';
+import React, {useState, useEffect} from 'react';
+import {X, Percent, Coins} from 'lucide-react';
+import {usePOSStore} from '../store/pos-store';
+import {cn, formatCurrency} from '../lib/utils';
+import {Button, Input, Dialog, DialogContent} from './ui';
 
 interface PaymentDialogProps {
   onClose: () => void;
@@ -19,23 +19,23 @@ interface PaymentDialogProps {
 }
 
 const PaymentDialog: React.FC<PaymentDialogProps> = ({
-  onClose,
-  grandTotal,
-  roundedTotal,
-  invoice,
-  customer,
-  posProfile,
-  table,
-  cashier,
-  owner,
-  fetchOrders,
-  clearSelectedOrder
-}) => {
-  const { paymentModes, fetchPaymentModes, posProfile: storePosProfile } = usePOSStore();
+                                                       onClose,
+                                                       grandTotal,
+                                                       roundedTotal,
+                                                       invoice,
+                                                       customer,
+                                                       posProfile,
+                                                       table,
+                                                       cashier,
+                                                       owner,
+                                                       fetchOrders,
+                                                       clearSelectedOrder
+                                                     }) => {
+  const {paymentModes, fetchPaymentModes, posProfile: storePosProfile} = usePOSStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [discountType] = useState<'percentage'>('percentage'); // Only percentage now
-  const [discountValue, setDiscountValue] = useState<string>('');
+  const [discountPercentage, setDiscountPercentage] = useState<string>('');
+  const [discountAmount, setDiscountAmount] = useState<string>('');
   const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
   const [paymentInputs, setPaymentInputs] = useState<{ [mode: string]: string }>({});
 
@@ -48,23 +48,45 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     .map((mode: any) => {
       const id = typeof mode === 'string' ? mode : mode.id;
       const amount = parseFloat(paymentInputs[id] || '');
-      return amount > 0 ? { mode_of_payment: id, amount } : null;
+      return amount > 0 ? {mode_of_payment: id, amount} : null;
     })
     .filter(Boolean);
   const paymentsTotal = payments.reduce((sum, p: any) => sum + p.amount, 0);
 
+  const handlePercentageChange = (value: string) => {
+    setDiscountPercentage(value);
+    const perc = parseFloat(value);
+    if (!isNaN(perc) && perc >= 0) {
+      const amount = (grandTotal * perc) / 100;
+      setDiscountAmount(amount ? amount.toFixed(2) : '');
+    } else {
+      setDiscountAmount('');
+    }
+  };
+
+  const handleAmountChange = (value: string) => {
+    setDiscountAmount(value);
+    const amt = parseFloat(value);
+    if (!isNaN(amt) && amt >= 0) {
+      const perc = (amt / grandTotal) * 100;
+      setDiscountPercentage(perc ? perc.toFixed(2) : '');
+    } else {
+      setDiscountPercentage('');
+    }
+  };
+
+
   const handleApplyDiscount = () => {
-    const value = parseFloat(discountValue);
-    if (isNaN(value) || value <= 0) {
-      setError('Please enter a valid discount value');
+    const amt = parseFloat(discountAmount);
+    if (isNaN(amt) || amt <= 0) {
+      setError('Please enter a valid discount');
       return;
     }
-    if (value > 100) {
-      setError('Percentage discount cannot exceed 100%');
+    if (amt > grandTotal) {
+      setError('Discount cannot exceed total amount');
       return;
     }
-    const calculatedDiscount = (grandTotal * value) / 100;
-    setAppliedDiscount(calculatedDiscount);
+    setAppliedDiscount(amt);
     setError(null);
   };
 
@@ -95,7 +117,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
       // Only auto-fill if the field is empty or zero
       if (!inputs[id] || parseFloat(inputs[id]) === 0) {
         const remaining = getRemainingBalance(id);
-        return { ...inputs, [id]: remaining > 0 ? String(remaining) : '' };
+        return {...inputs, [id]: remaining > 0 ? String(remaining) : ''};
       }
       return inputs;
     });
@@ -107,9 +129,9 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     try {
       const res = await fetch('/api/method/ury.ury.doctype.ury_order.ury_order.make_invoice', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          additionalDiscount:discountValue ? parseInt(discountValue): null,
+          additionalDiscount: appliedDiscount > 0 ? appliedDiscount : null, // <-- FIX
           cashier,
           customer,
           invoice,
@@ -120,7 +142,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
         })
       });
       if (!res.ok) throw new Error('Failed to make payment');
-      // Show toast and reload orders (assume showToast and reload available globally)
+
       if (typeof window !== 'undefined' && (window as any).showToast) {
         (window as any).showToast.success('Payment successful');
       }
@@ -134,9 +156,11 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     }
   };
 
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent variant="xlarge" className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row p-0" showCloseButton={false}>
+      <DialogContent variant="xlarge" className="bg-white w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row p-0"
+                     showCloseButton={false}>
         {/* Left Column - Discount and Payment Mode */}
         <div className="md:w-1/2 p-6 border-b md:border-b-0 md:border-r border-gray-200 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
@@ -147,7 +171,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
               size="icon"
               className="p-2"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5"/>
             </Button>
           </div>
 
@@ -155,28 +179,37 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           {storePosProfile?.enable_discount === 1 && (
             <div className="space-y-4 mb-6">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Percent className="w-5 h-5" />
+                <Percent className="w-5 h-5"/>
                 Apply Discount
               </h3>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="number"
-                  value={discountValue}
-                  onChange={(e) => setDiscountValue(e.target.value)}
-                  placeholder={'Enter %'}
+                  value={discountPercentage}
+                  onChange={(e) => handlePercentageChange(e.target.value)}
+                  placeholder="%"
                   size="sm"
                   className="flex-1"
                 />
-                <Button
-                  onClick={handleApplyDiscount}
-                  variant="default"
+                <Input
+                  type="number"
+                  value={discountAmount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  placeholder="Amount"
                   size="sm"
-                >
-                  Apply
-                </Button>
+                  className="flex-1"
+                />
               </div>
+              <Button
+                onClick={handleApplyDiscount}
+                variant="default"
+                size="sm"
+              >
+                Apply
+              </Button>
             </div>
           )}
+
 
           {/* Payment Methods Section - Split Payment */}
           <div className="space-y-4 mb-6">
@@ -192,7 +225,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                       min="0"
                       step="0.01"
                       value={paymentInputs[id] || ''}
-                      onChange={e => setPaymentInputs(inputs => ({ ...inputs, [id]: e.target.value }))}
+                      onChange={e => setPaymentInputs(inputs => ({...inputs, [id]: e.target.value}))}
                       onFocus={() => handlePaymentInputFocus(id)}
                       placeholder="Amount"
                       className="flex-1"
@@ -209,7 +242,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 {formatCurrency(paymentsTotal)} / {formatCurrency(finalTotal)}
                 {paymentsTotal > finalTotal && (
                   <span className="text-yellow-700 font-semibold">
-                    <Coins className="inline w-4 h-4 ml-1 text-yellow-500" />
+                    <Coins className="inline w-4 h-4 ml-1 text-yellow-500"/>
                     <span className="text-yellow-500 font-bold ml-1">{formatCurrency(paymentsTotal - finalTotal)}</span>
                   </span>
                 )}
@@ -267,7 +300,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
             variant={isProcessing || payments.length === 0 ? "secondary" : "default"}
             className="w-full"
           >
-            {isProcessing ? 'Processing...' : `Pay ${formatCurrency(paymentsTotal>0?paymentsTotal:finalTotal)}`}
+            {isProcessing ? 'Processing...' : `Pay ${formatCurrency(paymentsTotal > 0 ? paymentsTotal : finalTotal)}`}
           </Button>
         </div>
       </DialogContent>
@@ -275,4 +308,4 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   );
 };
 
-export default PaymentDialog; 
+export default PaymentDialog;

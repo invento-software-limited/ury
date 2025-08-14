@@ -6,7 +6,7 @@ app_publisher = "Tridz Technologies Pvt. Ltd"
 app_description = "A Complete Restaurant Order Taking Software"
 app_email = "info@tridz.com"
 app_license = "MIT"
-app_logo_url = "/assets/ury/Images/ury-logo.jpg"
+app_logo_url = ""
 app_icon_title = "URY"
 required_apps = ["erpnext"]
 # Includes in <head>
@@ -144,7 +144,7 @@ doc_events = {
         },
     "URY Menu Course": {
 		"validate": "ury.ury.api.ury_menu_course_validation.validate_priority",
-	}    
+	}
 }
 
 # Scheduled Tasks

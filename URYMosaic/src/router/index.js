@@ -8,12 +8,12 @@ const routes = [
 	path: "/",
 	name: "KOT",
 	component: KOT,
-  },  
+  },
   ...authRoutes,
 ];
 
 const router = createRouter({
-  base: "/URYMosaic/",
+  base: "/Mosaic/",
   history: createWebHistory(),
   routes,
 });

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import {useState, useEffect, useRef} from 'react';
+import {Link, useLocation} from 'react-router-dom';
 import {
   Command,
   User,
@@ -8,21 +8,22 @@ import {
   LogOut,
   RefreshCw,
 } from 'lucide-react';
-import { Button, Input } from './ui';
-import { useRootStore } from '../store/root-store';
-import { usePOSStore } from '../store/pos-store';
-import type { RootState } from '../store/root-store';
-import { logout } from '../lib/auth-api';
-import { showToast } from './ui/toast';
+import {Button, Input} from './ui';
+import {useRootStore} from '../store/root-store';
+import {usePOSStore} from '../store/pos-store';
+import type {RootState} from '../store/root-store';
+import {logout} from '../lib/auth-api';
+import {showToast} from './ui/toast';
 
 const Header = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showTableHeading, setShowTableHeading] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const user = useRootStore((state: RootState) => state.user);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
-  const { searchQuery, setSearchQuery } = usePOSStore();
-  const { orderSearchQuery, setOrderSearchQuery } = useRootStore();
+  const {searchQuery, setSearchQuery} = usePOSStore();
+  const {orderSearchQuery, setOrderSearchQuery} = useRootStore();
   const [orderSearchInput, setOrderSearchInput] = useState(orderSearchQuery);
 
   // Determine placeholder and handlers based on route
@@ -70,6 +71,14 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    if (location.pathname === '/tables') {
+      setShowTableHeading(true);
+    } else {
+      setShowTableHeading(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -107,7 +116,7 @@ const Header = () => {
       <div className="flex items-center justify-between h-16 px-6">
         {/* Logo */}
         <div className="flex items-center">
-        <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center space-x-3">
             <img
               src="/assets/ury/pos/pos.png"
               alt="URY POS"
@@ -117,7 +126,10 @@ const Header = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="px-4 py-2 flex-1 flex items-center max-w-2xl mx-8  bg-gray-50 hover:bg-gray-100 border border-input rounded-md">
+        {showTableHeading ?
+          <h1>Hello</h1> :
+          <div
+            className="px-4 py-2 flex-1 flex items-center max-w-2xl mx-8  bg-gray-50 hover:bg-gray-100 border border-input rounded-md">
             <Input
               ref={searchInputRef}
               placeholder={searchPlaceholder}
@@ -126,10 +138,12 @@ const Header = () => {
               onChange={searchOnChange}
             />
             <div className="flex items-center gap-2 text-gray-400">
-              <Command className="w-4 h-4" />
+              <Command className="w-4 h-4"/>
               <span>K</span>
             </div>
-        </div>
+          </div>
+        }
+
 
         {/* Right side actions */}
         <div className="flex items-center space-x-4">
@@ -141,10 +155,10 @@ const Header = () => {
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
+                <User className="w-4 h-4 text-white"/>
               </div>
               <span className="text-sm font-medium">{user?.full_name || 'User'}</span>
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4"/>
             </Button>
 
             {/* User dropdown */}
@@ -160,7 +174,7 @@ const Header = () => {
                     className="flex justify-start items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     onClick={() => window.location.href = '/app'}
                   >
-                    <Monitor className="w-4 h-4 mr-3" />
+                    <Monitor className="w-4 h-4 mr-3"/>
                     Switch To Desk
                   </Button>
                   <Button
@@ -168,7 +182,7 @@ const Header = () => {
                     className="flex justify-start items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                     onClick={handleClearCache}
                   >
-                    <RefreshCw className="w-4 h-4 mr-3" />
+                    <RefreshCw className="w-4 h-4 mr-3"/>
                     Clear Cache
                   </Button>
                   <Button
@@ -176,7 +190,7 @@ const Header = () => {
                     className="flex justify-start items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
                     onClick={handleLogout}
                   >
-                    <LogOut className="w-4 h-4 mr-3" />
+                    <LogOut className="w-4 h-4 mr-3"/>
                     Logout
                   </Button>
                 </div>

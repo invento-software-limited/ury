@@ -9,12 +9,13 @@ import ScreenSizeProvider from './components/ScreenSizeProvider';
 import { ToastProvider } from './components/ui/toast';
 import { usePOSStore } from './store/pos-store';
 import { useEffect } from 'react';
+import Tables from "./pages/Tables.tsx";
 
 function App() {
   const {
     initializeApp
   } = usePOSStore();
-  
+
   useEffect(() => {
     initializeApp();
   }, [initializeApp]);
@@ -31,6 +32,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<POS/>} />
                     <Route path="/orders" element={<Orders />} />
+                    <Route path="/tables" element={<Tables />} />
                   </Routes>
                 </div>
                 <Footer />

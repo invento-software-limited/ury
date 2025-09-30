@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutGrid, 
-  ClipboardList, 
+import {
+  LayoutGrid,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { usePOSStore } from '../store/pos-store';
 import PaymentDialog from './PaymentDialog';
+import EmptyTableIcon from "./icons/EmptyTableIcon.tsx";
 
 const Footer = () => {
   const { activeOrders } = usePOSStore();
@@ -21,6 +22,7 @@ const Footer = () => {
   const navItems = [
     { icon: LayoutGrid, label: 'POS', path: '/' },
     { icon: ClipboardList, label: 'Orders', path: '/orders' },
+    { icon: EmptyTableIcon, label: 'Tables', path: '/tables' },
   ];
 
   return (
@@ -44,7 +46,7 @@ const Footer = () => {
           ))}
         </div>
       </nav>
-      
+
       {showPayment && (
         <PaymentDialog
           onClose={() => setShowPayment(false)}
@@ -55,4 +57,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;
